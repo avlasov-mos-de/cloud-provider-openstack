@@ -19,6 +19,7 @@ package keystone
 import (
 	"encoding/json"
 	"sort"
+	"strings"
 	"sync"
 
 	"github.com/gophercloud/gophercloud"
@@ -53,7 +54,9 @@ func resourceMatches(p policy, a authorizer.Attributes) bool {
 	if *p.ResourceSpec.Namespace != "*" && *p.ResourceSpec.Namespace != a.GetNamespace() {
 		return false
 	}
-	if !findString("*", p.ResourceSpec.Resources) && !findString(a.GetResource(), p.ResourceSpec.Resources) {
+	if !findString("*", p.ResourceSpec.Resources) &&
+		!findString(a.GetResource(), p.ResourceSpec.Resources) &&
+		!findString(strings.Join([]string{a.GetResource(), a.GetSubresource()}, "/"), p.ResourceSpec.Resources) {
 		return false
 	}
 	if !findString("*", p.ResourceSpec.Verbs) && !findString(a.GetVerb(), p.ResourceSpec.Verbs) {
